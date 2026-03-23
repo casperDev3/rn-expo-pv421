@@ -1,6 +1,7 @@
-import {View, ScrollView, Platform, FlatList, StatusBar, Text, TextInput} from "react-native";
+import {View, ScrollView, Platform, FlatList, StatusBar, Text, TextInput, Pressable} from "react-native";
 import Test from "@/components/HelloWorld";
 import {useState} from "react";
+import {Link} from "expo-router";
 
 export default function Index() {
     const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -45,6 +46,25 @@ export default function Index() {
             <StatusBar
                 barStyle="dark-content"
             />
+
+            <View>
+                <Link href="/(tabs)/profile" asChild>
+                    <Pressable>
+                        <Text>Profile Screen</Text>
+                    </Pressable>
+                </Link>
+                <Link href="/news" asChild>
+                    <Pressable>
+                        <Text>News</Text>
+                    </Pressable>
+                </Link>
+                <Link href="/chat" asChild>
+                    <Pressable>
+                        <Text>Chats</Text>
+                    </Pressable>
+                </Link>
+            </View>
+
             <ScrollView horizontal={true} showsVerticalScrollIndicator={false}>
                 {
                     data.map((item, index) => (
