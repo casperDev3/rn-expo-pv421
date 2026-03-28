@@ -41,6 +41,16 @@ export default function TabLayout() {
                     )
                 }}
             />
+            <Tabs.Screen
+                name="storage"
+                options={{
+                    tabBarLabel: "Storage",
+                    title: "Storage",
+                    tabBarIcon: ({color, size}) => (
+                        <FontAwesome5 name="archive" size={size} color={color}/>
+                    )
+                }}
+            />
         </Tabs>
     )
 

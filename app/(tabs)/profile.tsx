@@ -1,8 +1,35 @@
-import {Platform, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Platform, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from "expo-router";
+import {useEffect, useState, useMemo} from "react";
+
+interface IProfile {
+    name: string;
+    age: string;
+}
 
 const ProfileScreen = () => {
+    // init
     const navigation = useNavigation();
+    const [profile, setProfile] = useState<IProfile>({
+        name: "",
+        age: ""
+    });
+    const [debouncedAge, setDebouncedAge] = useState(profile.age);
+    // load
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedAge(profile.age);
+        }, 500)
+
+        return () => {
+            clearTimeout(handler);
+        }
+    }, [profile.age])
+    //count
+    const age_discount = useMemo(() => {
+        return Number(debouncedAge) > 18 ? 0 : 0.15;
+    }, [debouncedAge])
+    // handles
     const handlePressBack = () => {
         navigation.goBack()
     }
@@ -15,7 +42,41 @@ const ProfileScreen = () => {
             <TouchableOpacity onPress={handlePressBack}>
                 <Text>Back</Text>
             </TouchableOpacity>
-            <Text>ProfileScreen</Text>
+            <View>
+                <TextInput
+                    placeholder={"Name"}
+                    value={profile.name}
+                    onChangeText={
+                        (text) => setProfile(prev => ({...prev, name: text}))
+                    }
+                />
+                <TextInput
+                    placeholder={"Age"}
+                    value={profile.age}
+                    onChangeText={
+                        (text) => setProfile(prev => ({...prev, age: text}))
+                    }
+                    keyboardType="numeric"
+                />
+                <View>
+                    <Text>
+                        Hey, {profile.name || "Anonymous"} ({profile.age || "0"})
+                    </Text>
+                    {
+                        debouncedAge !== "" ? (
+                            age_discount === 0 ? (
+                                <Text>
+                                    You haven&#39;t discount ^(
+                                </Text>
+                            ) : (
+                                <Text>
+                                    You discount: {age_discount * 100} %
+                                </Text>
+                            )
+                        ) : null
+                    }
+                </View>
+            </View>
         </View>
     )
 }
