@@ -1,8 +1,13 @@
 import {Platform, Text, View, TouchableOpacity} from 'react-native';
 import {useNavigation, Link} from "expo-router";
+import {useDispatch, useSelector} from "react-redux";
+import {addSaved, removeSaved} from "@/store/slices/newsSlice";
+import {RootState} from "@/store/store";
 
 const NewsScreen = () => {
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const saveNews: number[] = useSelector((state: RootState) => state.news.saved)
     const news = [
         {
             id: 1,
@@ -36,7 +41,37 @@ const NewsScreen = () => {
                         <Text>
                             {item.title}
                         </Text>
-                        
+                        {
+                            saveNews.includes(index) ? (
+                                <TouchableOpacity style={{
+                                    padding: 4,
+                                    backgroundColor: "red",
+                                    borderRadius: 4
+                                }}
+                                                  onPress={() => dispatch(removeSaved(index))}
+                                >
+                                    <Text style={{
+                                        color: "white"
+                                    }}>
+                                        Прибрати
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity style={{
+                                    padding: 4,
+                                    backgroundColor: "green",
+                                    borderRadius: 4
+                                }}
+                                                  onPress={() => dispatch(addSaved(index))}
+                                >
+                                    <Text style={{
+                                        color: "white"
+                                    }}>
+                                        Зберегти
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        }
                     </Link>
                 ))
             }

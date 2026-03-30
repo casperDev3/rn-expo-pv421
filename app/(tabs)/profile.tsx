@@ -3,6 +3,8 @@ import {useNavigation} from "expo-router";
 import {useEffect, useState, useMemo} from "react";
 import TestProps from "@/components/TestProps";
 import TestRedux from "@/components/TestRedux";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store/store";
 
 interface IProfile {
     name: string;
@@ -17,6 +19,7 @@ const ProfileScreen = () => {
         age: ""
     });
     const [debouncedAge, setDebouncedAge] = useState(profile.age);
+    const savedNews = useSelector((state: RootState)=> state.news.saved)
     // load
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -50,6 +53,17 @@ const ProfileScreen = () => {
                 <Text>Back</Text>
             </TouchableOpacity>
             <View>
+                <View>
+                    <Text style={
+                        {
+                            fontSize: 16,
+                            paddingHorizontal: 16,
+                            paddingBottom: 16,
+                        }
+                    }>
+                        Збережено новин: {savedNews.length} шт.
+                    </Text>
+                </View>
                 <TextInput
                     placeholder={"Name"}
                     value={profile.name}
