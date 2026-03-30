@@ -1,12 +1,15 @@
 import {Alert, Platform, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store/store";
 // TODO: last element don't save
 
 const StorageScreen = () => {
     // init
-    const [task, setTask] = useState<string>('');ß
+    const [task, setTask] = useState<string>('');
     const [savedTasks, setSavedTasks] = useState<string[]>([]);
+    const count = useSelector((state: RootState)=> state.counter.value);
     // load
     useEffect(() => {
         loadData().then();
@@ -41,6 +44,11 @@ const StorageScreen = () => {
             paddingTop: Platform.OS === "android" ? 48 : 60,
         }}
         >
+            <View>
+                <Text>
+                    Глобальний лічильник: {count}
+                </Text>
+            </View>
             <TextInput
                 placeholder="Input task"
                 value={task}

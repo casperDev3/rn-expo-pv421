@@ -1,6 +1,8 @@
 import {Alert, Platform, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from "expo-router";
 import {useEffect, useState, useMemo} from "react";
+import TestProps from "@/components/TestProps";
+import TestRedux from "@/components/TestRedux";
 
 interface IProfile {
     name: string;
@@ -32,6 +34,11 @@ const ProfileScreen = () => {
     // handles
     const handlePressBack = () => {
         navigation.goBack()
+    }
+    // getters
+    const getDataFromComponents = async (data: string) => {
+        Alert.alert(data)
+        return null
     }
     return (
         <View style={{
@@ -76,6 +83,8 @@ const ProfileScreen = () => {
                         ) : null
                     }
                 </View>
+                <TestProps data="Hello!" setData={getDataFromComponents} />
+                <TestRedux />
             </View>
         </View>
     )

@@ -36,6 +36,7 @@ const NewsScreen = () => {
                         <Text>
                             {item.title}
                         </Text>
+                        
                     </Link>
                 ))
             }
