@@ -1,21 +1,45 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {IPost} from "@/interfaces/posts";
+import {useDispatch, useSelector} from "react-redux";
+import {addSaved, removeSaved} from "@/store/slices/newsSlice";
+import {RootState} from "@/store/store";
+import {Link} from "expo-router";
 
 interface IProps {
     data: IPost;
 }
 
 const PostCard = ({data}: IProps) => {
-    const {title, id, user_id, body} = data;
+    // init
+    const {title, id, body} = data;
+    const dispatch = useDispatch();
+    const saveNews: number[] = useSelector((state: RootState) => state.news.saved)
     return (
         <View style={s.card}>
-            <Text style={s.title}>{title}</Text>
+            <Link style={s.title} href={`/news/${id}`}>
+                <Text style={s.titleText}>{title}</Text>
+            </Link>
             <Text style={s.body}>{body}
                 {body}
             </Text>
-            <TouchableOpacity style={s.button}>
-                <Text style={s.buttonText}>Save</Text>
-            </TouchableOpacity>
+            {
+                saveNews.includes(id) ? (
+                    <TouchableOpacity
+                        style={s.buttonReject}
+                        onPress={() => dispatch(removeSaved(id))}
+                    >
+                        <Text style={s.buttonTextReject}>Reject</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={s.button}
+                        onPress={() => dispatch(addSaved(id))}
+                    >
+                        <Text style={s.buttonText}>Save</Text>
+                    </TouchableOpacity>
+                )
+            }
+
         </View>
     )
 }
@@ -34,10 +58,12 @@ const s = StyleSheet.create({
         paddingVertical: 4,
     },
     title: {
+        marginBottom: 8,
+    },
+    titleText: {
         fontSize: 20,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 8,
     },
     body: {
         fontSize: 14,
@@ -50,10 +76,19 @@ const s = StyleSheet.create({
         width: '100%',
         marginBottom: 8,
     },
+    buttonReject: {
+        backgroundColor: 'red',
+        width: '100%',
+    },
     buttonText: {
         fontSize: 16,
         textAlign: 'center',
-    }
+    },
+    buttonTextReject: {
+        fontSize: 16,
+        textAlign: 'center',
+        color: 'white',
+    },
 })
 
 export default PostCard;
