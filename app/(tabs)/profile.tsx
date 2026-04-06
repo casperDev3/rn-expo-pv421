@@ -19,7 +19,7 @@ const ProfileScreen = () => {
         age: ""
     });
     const [debouncedAge, setDebouncedAge] = useState(profile.age);
-    const savedNews = useSelector((state: RootState)=> state.news.saved)
+    const savedNews = useSelector((state: RootState) => state.news.saved)
     // load
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -97,8 +97,8 @@ const ProfileScreen = () => {
                         ) : null
                     }
                 </View>
-                <TestProps data="Hello!" setData={getDataFromComponents} />
-                <TestRedux />
+                <TestProps data="Hello!" setData={getDataFromComponents}/>
+                <TestRedux/>
             </View>
         </View>
     )
