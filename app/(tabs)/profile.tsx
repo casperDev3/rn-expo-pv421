@@ -1,107 +1,72 @@
-import {Alert, Platform, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import {useNavigation} from "expo-router";
-import {useEffect, useState, useMemo} from "react";
-import TestProps from "@/components/TestProps";
-import TestRedux from "@/components/TestRedux";
-import {useSelector} from "react-redux";
-import {RootState} from "@/store/store";
-
-interface IProfile {
-    name: string;
-    age: string;
-}
+import {useState} from "react";
+import {View, Text, Platform, Button, Image, StyleSheet, Alert} from "react-native";
+import * as ImagePicker from 'expo-image-picker'
 
 const ProfileScreen = () => {
-    // init
-    const navigation = useNavigation();
-    const [profile, setProfile] = useState<IProfile>({
-        name: "",
-        age: ""
-    });
-    const [debouncedAge, setDebouncedAge] = useState(profile.age);
-    const savedNews = useSelector((state: RootState) => state.news.saved)
-    // load
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedAge(profile.age);
-        }, 500)
-
-        return () => {
-            clearTimeout(handler);
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            // mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8
+        })
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri)
         }
-    }, [profile.age])
-    //count
-    const age_discount = useMemo(() => {
-        return Number(debouncedAge) > 18 ? 0 : 0.15;
-    }, [debouncedAge])
-    // handles
-    const handlePressBack = () => {
-        navigation.goBack()
     }
-    // getters
-    const getDataFromComponents = async (data: string) => {
-        Alert.alert(data)
-        return null
+    const takePhoto = async () => {
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permissionResult.granted) {
+            Alert.alert("Permission denied");
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8
+        })
+
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri)
+        }
     }
     return (
-        <View style={{
-            paddingHorizontal: 16,
-            paddingTop: Platform.OS === "android" ? 48 : 60,
-        }}>
-            {/* Go back button */}
-            <TouchableOpacity onPress={handlePressBack}>
-                <Text>Back</Text>
-            </TouchableOpacity>
+        <View
+            style={{
+                paddingHorizontal: 16,
+                paddingTop: Platform.OS === "android" ? 48 : 60,
+            }}
+        >
             <View>
-                <View>
-                    <Text style={
-                        {
-                            fontSize: 16,
-                            paddingHorizontal: 16,
-                            paddingBottom: 16,
-                        }
-                    }>
-                        Збережено новин: {savedNews.length} шт.
-                    </Text>
-                </View>
-                <TextInput
-                    placeholder={"Name"}
-                    value={profile.name}
-                    onChangeText={
-                        (text) => setProfile(prev => ({...prev, name: text}))
-                    }
-                />
-                <TextInput
-                    placeholder={"Age"}
-                    value={profile.age}
-                    onChangeText={
-                        (text) => setProfile(prev => ({...prev, age: text}))
-                    }
-                    keyboardType="numeric"
-                />
-                <View>
-                    <Text>
-                        Hey, {profile.name || "Anonymous"} ({profile.age || "0"})
-                    </Text>
-                    {
-                        debouncedAge !== "" ? (
-                            age_discount === 0 ? (
-                                <Text>
-                                    You haven&#39;t discount ^(
-                                </Text>
-                            ) : (
-                                <Text>
-                                    You discount: {age_discount * 100} %
-                                </Text>
-                            )
-                        ) : null
-                    }
-                </View>
-                <TestProps data="Hello!" setData={getDataFromComponents}/>
-                <TestRedux/>
+                <Text>Профіль користувача</Text>
+            </View>
+            <View>
+                {
+                    imageUri ? (
+                        <Image style={s.avatar} source={{uri: imageUri}}/>
+                    ) : (
+                        <View>
+                            <Text>Немає фото</Text>
+                        </View>
+                    )
+                }
+            </View>
+            <View>
+                <Button title={"Відкрити галерею"} onPress={pickImage}/>
+                <Button title={"Відкрити камеру"} onPress={takePhoto}/>
             </View>
         </View>
     )
 }
+
+const s = StyleSheet.create({
+    avatar: {
+        width: 150,
+        height: 150,
+        borderRadius: Platform.OS === "android" ? 48 : 60,
+    }
+})
 
 export default ProfileScreen;

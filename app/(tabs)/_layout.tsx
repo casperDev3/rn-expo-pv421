@@ -20,6 +20,17 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="test"
+                options={{
+                    tabBarLabel: "Test",
+                    title: "test",
+                    // href: null,
+                    tabBarIcon: ({color, size}) => (
+                        <FontAwesome5 name="virus" size={size} color={color}/>
+                    )
+                }}
+            />
+            <Tabs.Screen
                 name="index"
                 options={{
                     tabBarLabel: "Home",
