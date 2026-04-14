@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {View, Text, Platform, Button, Image, StyleSheet, Alert} from "react-native";
 import * as ImagePicker from 'expo-image-picker'
 import {
@@ -9,15 +9,42 @@ import {
     RecordingPresets,
     setAudioModeAsync
 } from "expo-audio";
+import {VolumeManager} from "react-native-volume-manager";
 
 const ProfileScreen = () => {
     // init
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [soundUri, setSoundUri] = useState<string | null>(null);
+    const [currentVolume, setCurrentVolume] = useState<number>(0);
 
     const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
     const recorderState = useAudioRecorderState(audioRecorder)
     const player = useAudioPlayer(soundUri)
+    // load
+    useEffect(() => {
+        const fetchInitialVolume = async () => {
+            const {volume} = await VolumeManager.getVolume();
+            console.log(volume);
+            setCurrentVolume(volume);
+        }
+        fetchInitialVolume().then();
+
+        const volumeListener = VolumeManager.addVolumeListener((result) => {
+            console.log(result.volume)
+            setCurrentVolume(result.volume)
+
+            if (result.volume > currentVolume) {
+                console.log('Натиснуто кнопку збільшення гучності (Up)');
+            } else if (result.volume < currentVolume) {
+                console.log('Натиснуто кнопку зменшення гучності (Down)');
+            }
+        })
+
+        return () => {
+            volumeListener.remove()
+        }
+
+    }, [currentVolume])
 
     // methods
     async function startRecording() {
@@ -47,7 +74,7 @@ const ProfileScreen = () => {
             await setAudioModeAsync({
                 allowsRecording: false,
             })
-            if(audioRecorder.uri){
+            if (audioRecorder.uri) {
                 setSoundUri(audioRecorder.uri)
             }
         } catch (error) {
@@ -56,7 +83,7 @@ const ProfileScreen = () => {
     }
 
     async function playSound() {
-        if (player){
+        if (player) {
             player.seekTo(0)
             player.play()
         }
@@ -98,7 +125,7 @@ const ProfileScreen = () => {
             }}
         >
             <View>
-                <Text>Профіль користувача</Text>
+                <Text>Профіль користувача - {currentVolume}</Text>
             </View>
             <View>
                 {
