@@ -1,9 +1,67 @@
 import {useState} from "react";
 import {View, Text, Platform, Button, Image, StyleSheet, Alert} from "react-native";
 import * as ImagePicker from 'expo-image-picker'
+import {
+    useAudioRecorder,
+    useAudioRecorderState,
+    useAudioPlayer,
+    AudioModule,
+    RecordingPresets,
+    setAudioModeAsync
+} from "expo-audio";
 
 const ProfileScreen = () => {
+    // init
     const [imageUri, setImageUri] = useState<string | null>(null);
+    const [soundUri, setSoundUri] = useState<string | null>(null);
+
+    const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
+    const recorderState = useAudioRecorderState(audioRecorder)
+    const player = useAudioPlayer(soundUri)
+
+    // methods
+    async function startRecording() {
+        try {
+            const status = await AudioModule.requestRecordingPermissionsAsync()
+            if (!status) {
+                Alert.alert("Потрібен доступ до мікрофона")
+                return
+            }
+
+            await setAudioModeAsync({
+                allowsRecording: true,
+                playsInSilentMode: true,
+            })
+
+            await audioRecorder.prepareToRecordAsync();
+            audioRecorder.record()
+        } catch (err) {
+            console.warn(err)
+        }
+    }
+
+    async function stopRecording() {
+        try {
+            await audioRecorder.stop()
+
+            await setAudioModeAsync({
+                allowsRecording: false,
+            })
+            if(audioRecorder.uri){
+                setSoundUri(audioRecorder.uri)
+            }
+        } catch (error) {
+            console.warn(error)
+        }
+    }
+
+    async function playSound() {
+        if (player){
+            player.seekTo(0)
+            player.play()
+        }
+    }
+
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             // mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -56,6 +114,22 @@ const ProfileScreen = () => {
             <View>
                 <Button title={"Відкрити галерею"} onPress={pickImage}/>
                 <Button title={"Відкрити камеру"} onPress={takePhoto}/>
+            </View>
+            <View>
+                <Text>
+                    Диктофон
+                </Text>
+                <Button title={recorderState.isRecording ? "Зупинити запис" : "Почати запис"}
+                        onPress={recorderState.isRecording ? stopRecording : startRecording}
+                        color={recorderState.isRecording ? "red" : "green"}
+                />
+                {
+                    soundUri && (
+                        <View>
+                            <Button title="Прослухати запис" onPress={playSound}/>
+                        </View>
+                    )
+                }
             </View>
         </View>
     )
